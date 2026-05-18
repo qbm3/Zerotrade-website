@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Zerotrade · Global Exchanges</title>
+
+<!-- Tailwind (Play CDN) — kept since the globe was built against it -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Typography -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300..700&family=JetBrains+Mono:wght@300;400;500&display=swap"
+  rel="stylesheet"
+/>
+
+<!-- Globe.gl + topojson -->
+<script src="https://cdn.jsdelivr.net/npm/globe.gl@2.45.3/dist/globe.gl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+
+<style>
+  :root {
+    --bg-deep: #07090f;
+    --bg-mid: #0d111c;
+    --border-soft: rgba(255, 255, 255, 0.08);
+    --border-mid: rgba(255, 255, 255, 0.14);
+    --text-primary: #f4f4f6;
+    --text-muted: #7a7f8c;
+    --text-faint: #4c5161;
+    --accent-open: #00d97e;
+    --accent-open-glow: rgba(0, 217, 126, 0.45);
+    --accent-closed: #ff5757;
+    --accent-closed-glow: rgba(255, 87, 87, 0.4);
+    --accent-gold: #c9a96e;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.005em;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(40, 70, 120, 0.22) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 110%, rgba(90, 50, 110, 0.12) 0%, transparent 50%),
+      var(--bg-deep);
+  }
+
+  /* Subtle film grain */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  #globe-container {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+
+  .display-serif {
+    font-family: 'Instrument Serif', 'Times New Roman', serif;
+    font-weight: 400;
+    letter-spacing: -0.005em;
+  }
+  .mono {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-feature-settings: 'tnum', 'zero';
+  }
+  .micro-label {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  /* ─── Tooltip card (kept — markers are clickable) ─── */
+  .tooltip-card {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.94);
+    z-index: 30;
+    width: 340px;
+    max-width: calc(100vw - 32px);
+    padding: 24px 26px 20px;
+    background: rgba(13, 17, 28, 0.62);
+    backdrop-filter: blur(30px) saturate(170%);
+    -webkit-backdrop-filter: blur(30px) saturate(170%);
+    border: 1px solid var(--border-mid);
+    border-radius: 14px;
+    box-shadow:
+      0 32px 80px rgba(0,0,0,0.55),
+      0 0 0 1px rgba(255,255,255,0.03),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.28s ease,
+      transform 0.36s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+  }
+  .tooltip-card.active {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+  }
+  .tooltip-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 14%; right: 14%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
+  }
+  .tt-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px;
+  }
+  .tt-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.24em; color: var(--accent-gold);
+  }
+  .tt-close {
+    background: none; border: 1px solid var(--border-soft);
+    color: var(--text-muted);
+    width: 26px; height: 26px;
+    border-radius: 50%; cursor: pointer; font-size: 12px;
+    display: grid; place-items: center;
+    transition: all 0.2s ease;
+  }
+  .tt-close:hover {
+    color: var(--text-primary);
+    border-color: var(--border-mid);
+    background: rgba(255,255,255,0.03);
+  }
+  .tt-name {
+    font-family: 'Instrument Serif', serif;
+    font-size: 26px; line-height: 1.08; margin: 2px 0 4px;
+  }
+  .tt-city { color: var(--text-muted); font-size: 13px; margin-bottom: 16px; }
+  .tt-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 11px 0;
+    border-top: 1px solid var(--border-soft);
+  }
+  .tt-row:last-of-type { border-bottom: 1px solid var(--border-soft); }
+  .tt-row-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px; color: var(--text-primary); letter-spacing: 0.02em;
+  }
+
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 11px; border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: 0.18em;
+    text-transform: uppercase; font-weight: 500;
+  }
+  .status-badge.open {
+    background: rgba(0,217,126,0.10); color: var(--accent-open);
+    border: 1px solid rgba(0,217,126,0.3);
+  }
+  .status-badge.closed {
+    background: rgba(255,87,87,0.10); color: var(--accent-closed);
+    border: 1px solid rgba(255,87,87,0.28);
+  }
+  .status-badge .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; box-shadow: 0 0 8px currentColor;
+    animation: badge-pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes badge-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(0.85); }
+  }
+
+  /* ─── Loader ─── */
+  .loader {
+    position: fixed; inset: 0; z-index: 100;
+    background: var(--bg-deep);
+    display: grid; place-items: center;
+    transition: opacity 0.7s ease;
+  }
+  .loader.done { opacity: 0; pointer-events: none; }
+  .loader-inner { text-align: center; }
+  .loader-mark {
+    width: 40px; height: 40px;
+    margin: 0 auto 18px;
+    border: 1px solid var(--border-mid);
+    border-radius: 5px;
+    display: grid; place-items: center;
+    position: relative;
+  }
+  .loader-mark::after {
+    content: ''; position: absolute; inset: 6px;
+    border: 1px solid var(--accent-gold);
+    border-radius: 3px;
+    animation: legend-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes legend-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+  }
+  .loader-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.28em;
+    color: var(--text-muted); text-transform: uppercase;
+  }
+
+  .scene-tooltip { font-family: 'DM Sans', sans-serif !important; }
+
+  /* Hide tooltip on very small embed dimensions */
+  @media (max-width: 480px) {
+    .tooltip-card { width: calc(100vw - 24px); padding: 20px 20px 16px; }
+    .tt-name { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Loader -->
+<div class="loader" id="loader">
+  <div class="loader-inner">
+    <div class="loader-mark">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c9a96e" stroke-width="1.6">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M3 12h18M12 3a13 13 0 010 18M12 3a13 13 0 000 18"/>
+      </svg>
+    </div>
+    <div class="loader-text">Loading global exchanges</div>
+  </div>
+</div>
+
+<!-- Globe -->
+<div id="globe-container"></div>
+
+<!-- Tooltip -->
+<div class="tooltip-card" id="tooltip" role="dialog" aria-modal="false">
+  <div class="tt-header">
+    <div class="tt-code" id="tt-code">———</div>
+    <button class="tt-close" id="tt-close" aria-label="Close">✕</button>
+  </div>
+  <div class="tt-name display-serif" id="tt-name">—</div>
+  <div class="tt-city" id="tt-city">—</div>
+
+  <div class="tt-row">
+    <span class="micro-label">Local Time</span>
+    <span class="tt-row-value" id="tt-local">—</span>
+  </div>
+  <div class="tt-row">
+    <span class="micro-label">Trading Hours</span>
+    <span class="tt-row-value" id="tt-hours">—</span>
+  </div>
+  <div class="tt-row" style="padding-top: 16px; padding-bottom: 4px;">
+    <span class="micro-label">Status</span>
+    <span id="tt-status">—</span>
+  </div>
+</div>
+
+<script>
+function showFatal(msg) {
+  const loader = document.getElementById('loader');
+  if (!loader) return;
+  loader.querySelector('.loader-text').textContent = msg;
+  loader.querySelector('.loader-text').style.color = '#ff5757';
+}
+window.addEventListener('error', (e) => {
+  console.error('[Globe] runtime error:', e.error || e.message);
+  showFatal('Initialization error');
+});
+
+/* Top 10 Global Stock Exchanges */
+const EXCHANGES = [
+  { code: 'NYSE', name: 'New York Stock Exchange', city: 'New York, USA', lat: 40.7069, lng: -74.0113, timezone: 'America/New_York', open: '09:30', close: '16:00', breaks: [] },
+  { code: 'TSX',  name: 'Toronto Stock Exchange',  city: 'Toronto, Canada', lat: 43.6481, lng: -79.3805, timezone: 'America/Toronto', open: '09:30', close: '16:00', breaks: [] },
+  { code: 'LSE',  name: 'London Stock Exchange',   city: 'London, United Kingdom', lat: 51.5155, lng: -0.0922, timezone: 'Europe/London', open: '08:00', close: '16:30', breaks: [] },
+  { code: 'EPA',  name: 'Euronext Paris',          city: 'Paris, France', lat: 48.8696, lng: 2.3417, timezone: 'Europe/Paris', open: '09:00', close: '17:30', breaks: [] },
+  { code: 'FWB',  name: 'Frankfurt Stock Exchange',city: 'Frankfurt, Germany', lat: 50.1155, lng: 8.6842, timezone: 'Europe/Berlin', open: '09:00', close: '17:30', breaks: [] },
+  { code: 'BSE',  name: 'Bombay Stock Exchange',   city: 'Mumbai, India', lat: 18.9298, lng: 72.8336, timezone: 'Asia/Kolkata', open: '09:15', close: '15:30', breaks: [] },
+  { code: 'SSE',  name: 'Shanghai Stock Exchange', city: 'Shanghai, China', lat: 31.2317, lng: 121.4979, timezone: 'Asia/Shanghai', open: '09:30', close: '15:00', breaks: [['11:30', '13:00']] },
+  { code: 'HKEX', name: 'Hong Kong Stock Exchange',city: 'Hong Kong', lat: 22.2845, lng: 114.1591, timezone: 'Asia/Hong_Kong', open: '09:30', close: '16:00', breaks: [['12:00', '13:00']] },
+  { code: 'TSE',  name: 'Tokyo Stock Exchange',    city: 'Tokyo, Japan', lat: 35.6815, lng: 139.7660, timezone: 'Asia/Tokyo', open: '09:00', close: '15:30', breaks: [['11:30', '12:30']] },
+  { code: 'ASX',  name: 'Australian Securities Exchange', city: 'Sydney, Australia', lat: -33.8688, lng: 151.2093, timezone: 'Australia/Sydney', open: '10:00', close: '16:00', breaks: [] }
+];
+
+const COLOR_OPEN_HEX   = '#00d97e';
+const COLOR_CLOSED_HEX = '#ff5757';
+const COLOR_OPEN_RGB   = '0, 217, 126';
+const COLOR_CLOSED_RGB = '255, 87, 87';
+
+function toMin(hhmm) { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; }
+
+function getMarketStatus(ex) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: ex.timezone, weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false
+  }).formatToParts(new Date());
+  const weekday = parts.find(p => p.type === 'weekday').value;
+  let hour = parseInt(parts.find(p => p.type === 'hour').value, 10);
+  const minute = parseInt(parts.find(p => p.type === 'minute').value, 10);
+  if (hour === 24) hour = 0;
+  if (weekday === 'Sat' || weekday === 'Sun') return { isOpen: false, label: 'Closed', reason: 'Weekend' };
+  const cur = hour * 60 + minute;
+  if (cur < toMin(ex.open))   return { isOpen: false, label: 'Pre-Market' };
+  if (cur >= toMin(ex.close)) return { isOpen: false, label: 'Closed', reason: 'After-Hours' };
+  for (const [bs, be] of ex.breaks) {
+    if (cur >= toMin(bs) && cur < toMin(be)) return { isOpen: false, label: 'Recess', reason: 'Trading Halt' };
+  }
+  return { isOpen: true, label: 'Open' };
+}
+
+function getLocalTime(tz) {
+  return new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).format(new Date());
+}
+function getLocalDay(tz) {
+  return new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short' }).format(new Date()).toUpperCase();
+}
+
+/* Globe setup */
+const globeEl = document.getElementById('globe-container');
+
+if (typeof Globe !== 'function') {
+  showFatal('Globe.gl failed to load');
+  throw new Error('Globe constructor unavailable');
+}
+
+const SURFACE_SVG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"><rect width="4" height="4" fill="#0a1428"/></svg>'
+);
+
+const world = new Globe(globeEl, { animateIn: true })
+  .globeImageUrl(SURFACE_SVG)
+  .backgroundColor('rgba(0,0,0,0)')
+  .showGlobe(true)
+  .showAtmosphere(true)
+  .atmosphereColor('#5d8cc6')
+  .atmosphereAltitude(0.22)
+  .width(window.innerWidth)
+  .height(window.innerHeight);
+
+fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+  .then(r => r.json())
+  .then(topology => {
+    if (typeof topojson === 'undefined') return;
+    const countries = topojson.feature(topology, topology.objects.countries);
+    world
+      .hexPolygonsData(countries.features)
+      .hexPolygonResolution(3)
+      .hexPolygonMargin(0.32)
+      .hexPolygonUseDots(true)
+      .hexPolygonColor(() => 'rgba(120, 165, 230, 0.85)');
+  })
+  .catch(err => console.warn('[Globe] Country data failed to load', err));
+
+world.pointOfView({ lat: 22, lng: 10, altitude: 2.4 }, 0);
+
+const controls = world.controls();
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.45;
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 180;
+controls.maxDistance = 600;
+
+world
+  .pointsData(EXCHANGES)
+  .pointLat('lat').pointLng('lng')
+  .pointColor(d => getMarketStatus(d).isOpen ? COLOR_OPEN_HEX : COLOR_CLOSED_HEX)
+  .pointAltitude(0.008)
+  .pointRadius(0.55)
+  .pointResolution(20)
+  .pointsMerge(false)
+  .pointLabel(d => {
+    const s = getMarketStatus(d);
+    const c = s.isOpen ? COLOR_OPEN_HEX : COLOR_CLOSED_HEX;
+    return `<div style="background:rgba(13,17,28,0.85);backdrop-filter:blur(12px);padding:8px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);font-family:'DM Sans',sans-serif;color:#f4f4f6;font-size:12px;letter-spacing:0.02em;">
+      <span style="color:${c};font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;">${d.code}</span>
+      <span style="color:#7a7f8c;margin:0 6px;">·</span>
+      <span>${d.city}</span></div>`;
+  })
+  .onPointClick(handlePointClick)
+  .onGlobeClick(handleGlobeClick);
+
+world
+  .ringsData(EXCHANGES)
+  .ringLat('lat').ringLng('lng')
+  .ringColor(d => {
+    const open = getMarketStatus(d).isOpen;
+    const rgb = open ? COLOR_OPEN_RGB : COLOR_CLOSED_RGB;
+    return t => `rgba(${rgb}, ${Math.sqrt(1 - t) * 0.85})`;
+  })
+  .ringMaxRadius(3.0)
+  .ringPropagationSpeed(2.4)
+  .ringRepeatPeriod(1500)
+  .ringAltitude(0.006);
+
+/* Interaction */
+let activeExchange = null;
+let clickSuppressGlobe = false;
+
+function handlePointClick(d) {
+  clickSuppressGlobe = true;
+  setTimeout(() => { clickSuppressGlobe = false; }, 50);
+  controls.autoRotate = false;
+  world.pointOfView({ lat: d.lat, lng: d.lng, altitude: 1.7 }, 1100);
+  showTooltip(d);
+}
+function handleGlobeClick() {
+  if (clickSuppressGlobe) return;
+  hideTooltip();
+  controls.autoRotate = true;
+}
+function showTooltip(d) {
+  activeExchange = d;
+  renderTooltip(d);
+  document.getElementById('tooltip').classList.add('active');
+}
+function hideTooltip() {
+  activeExchange = null;
+  document.getElementById('tooltip').classList.remove('active');
+}
+function renderTooltip(d) {
+  const s = getMarketStatus(d);
+  document.getElementById('tt-code').textContent = d.code;
+  document.getElementById('tt-name').textContent = d.name;
+  document.getElementById('tt-city').textContent = d.city;
+  document.getElementById('tt-local').textContent = `${getLocalDay(d.timezone)} · ${getLocalTime(d.timezone)}`;
+  const hoursParts = [`${d.open} – ${d.close}`];
+  if (d.breaks.length) hoursParts.push(`break ${d.breaks[0][0]}–${d.breaks[0][1]}`);
+  document.getElementById('tt-hours').textContent = hoursParts.join(' · ');
+  const subText = s.reason ? ` · ${s.reason}` : '';
+  document.getElementById('tt-status').innerHTML =
+    `<span class="status-badge ${s.isOpen ? 'open' : 'closed'}">
+       <span class="dot"></span>${s.label}${subText ? `<span style="opacity:0.65;letter-spacing:0.1em;margin-left:6px;">${subText}</span>` : ''}
+     </span>`;
+}
+
+document.getElementById('tt-close').addEventListener('click', () => {
+  hideTooltip();
+  controls.autoRotate = true;
+});
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && activeExchange) {
+    hideTooltip();
+    controls.autoRotate = true;
+  }
+});
+
+/* Live updates — local time in active tooltip, market status colors every 20s */
+setInterval(() => {
+  if (activeExchange) {
+    document.getElementById('tt-local').textContent =
+      `${getLocalDay(activeExchange.timezone)} · ${getLocalTime(activeExchange.timezone)}`;
+  }
+}, 1000);
+
+setInterval(() => {
+  world.pointsData([...EXCHANGES]).ringsData([...EXCHANGES]);
+  if (activeExchange) renderTooltip(activeExchange);
+}, 20000);
+
+window.addEventListener('resize', () => {
+  world.width(window.innerWidth).height(window.innerHeight);
+});
+
+setTimeout(() => {
+  document.getElementById('loader').classList.add('done');
+}, 1400);
+</script>
+</body>
+</html>
