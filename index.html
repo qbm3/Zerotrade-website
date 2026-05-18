@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zerotrade — Trade Smarter. Move Faster. Grow Bigger.</title>
+  <meta name="description" content="Next generation copy trading solution. Trade global instruments with seamless trading, low commission, and 24/7 support." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <!-- ============ TICKER TAPE (TradingView) ============ -->
+<div class="ticker">
+  <div class="tradingview-widget-container">
+    <div class="tradingview-widget-container__widget"></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+    {
+      "symbols": [
+        { "proName": "FOREXCOM:SPXUSD", "title": "S&P 500" },
+        { "proName": "FOREXCOM:NSXUSD", "title": "Nasdaq 100" },
+        { "proName": "FX_IDC:EURUSD", "title": "EUR/USD" },
+        { "proName": "BITSTAMP:BTCUSD", "title": "BTC/USD" },
+        { "proName": "BITSTAMP:ETHUSD", "title": "ETH/USD" },
+        { "description": "Gold", "proName": "OANDA:XAUUSD" },
+        { "description": "Tesla", "proName": "NASDAQ:TSLA" },
+        { "description": "Apple", "proName": "NASDAQ:AAPL" }
+      ],
+      "showSymbolLogo": true,
+      "isTransparent": false,
+      "displayMode": "adaptive",
+      "colorTheme": "dark",
+      "locale": "en"
+    }
+    </script>
+  </div>
+</div>
+
+  <!-- ============ NAV + HERO (shared dark background) ============ -->
+  <div class="hero-wrap">
+    <header class="nav">
+      <div class="container nav__inner">
+        <a href="#" class="nav__logo">
+          <img src="logos\zeropay logo.svg" alt="Zeropay" />
+        </a>
+        <nav class="nav__links" aria-label="Primary">
+          <a href="#">Trading</a>
+          <a href="#">Company</a>
+          <a href="#">Resources</a>
+          <a href="#">Blog</a>
+        </nav>
+        <div class="nav__cta">
+          <a href="#" class="btn btn--ghost">Login</a>
+          <a href="#" class="btn btn--primary">Get Started</a>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="container hero__inner">
+        <span class="pill pill--on-dark">Trading Company</span>
+        <h1 class="hero__title">Trade Smarter.<br />Move Faster. Grow Bigger.</h1>
+        <p class="hero__sub">
+          Join thousands of traders in accessing global instruments to achieve your financial goals
+          with seamless trading, low commission, and 24/7 personalized support on Zerotrade.
+        </p>
+        <a href="#" class="btn btn--primary btn--lg">Open your account</a>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ FUTURE OF TRADING (intro + chart placeholder) ============ -->
+  <section class="section section--gray">
+    <div class="container">
+      <div class="section-head">
+        <span class="pill">Global trading platform</span>
+        <h2 class="section-head__title">The future of trading with<br />digital global access</h2>
+      </div>
+      <div class="chart-preview" data-placeholder="true">
+        <img src="assets/images/chart-preview-placeholder.png" alt="Live trading chart preview" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRADING CATEGORIES (3 cards) ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="pill">Global trading platform</span>
+        <h2 class="section-head__title">The future of trading with<br />digital global access</h2>
+      </div>
+      <div class="grid-3">
+        <article class="card">
+          <!-- TODO: icon + ticker + sparkline + title + description -->
+          <h3 class="card__title">Stocks and Indices CFDs</h3>
+          <p class="card__text">Trade world's most popular stocks and indices.</p>
+        </article>
+        <article class="card">
+          <h3 class="card__title">Forex, Commodities etc.</h3>
+          <p class="card__text">Thousands of leveraged CFD instruments.</p>
+        </article>
+        <article class="card">
+          <h3 class="card__title">Crypto</h3>
+          <p class="card__text">Trade crypto CFDs: BTC, ETH and more.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BUILDING FINANCIAL SYSTEMS (split: text + image) ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="split">
+        <div class="split__text">
+          <span class="pill">Global trading platform</span>
+          <h2 class="section-head__title">Building financial<br />systems that work.</h2>
+          <p class="split__body">
+            Our goal is to build a system that is committed to helping traders set and achieve
+            financial goals within the shortest time possible.
+          </p>
+          <a href="#" class="btn btn--primary">Open your account</a>
+        </div>
+        <div class="split__media" data-placeholder="true">
+          <img src="assets/images/founder-placeholder.png" alt="Building financial systems" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LIVE MARKET DATA (dark section, table placeholder) ============ -->
+  <section class="section section--dark">
+    <div class="container">
+      <div class="section-head">
+        <span class="pill pill--on-dark">Live Market Data</span>
+        <h2 class="section-head__title">Follow the markets.<br />Move with the trends.</h2>
+        <p class="section-head__sub">
+          Live price action on the world's most traded stocks, indices, and currency pairs streamed
+          straight from the global exchanges. Spot the move before the crowd.
+        </p>
+      </div>
+      <div class="market-table" data-placeholder="true">
+        <img src="assets/images/market-table-placeholder.png" alt="Live market data table" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ YOUR MONEY YOUR WAY (3 features + payment logos) ============ -->
+  <section class="section section--gray">
+    <div class="container">
+      <div class="section-head">
+        <h2 class="section-head__title">Your money, Your way.</h2>
+      </div>
+      <div class="grid-3">
+        <article class="feature">
+          <div class="feature__icon">
+            <img src="assets/icon/deposit.svg" alt="" />
+          </div>
+          <h3 class="feature__title">Instant Deposits</h3>
+          <p class="feature__text">Fund your account in seconds and start trading without delays.</p>
+        </article>
+        <article class="feature">
+          <div class="feature__icon">
+            <img src="assets/icon/withdraw.svg" alt="" />
+          </div>
+          <h3 class="feature__title">Fast Withdrawals</h3>
+          <p class="feature__text">Access your funds quickly with smooth, secure withdrawal processing.</p>
+        </article>
+        <article class="feature">
+          <div class="feature__icon">
+            <img src="assets/icon/commission.svg" alt="" />
+          </div>
+          <h3 class="feature__title">0% Commission</h3>
+          <p class="feature__text">Deposit and withdraw with zero commission or transaction fees.</p>
+        </article>
+      </div>
+
+      <div class="cta-row">
+        <a href="#" class="btn btn--primary">Open your account</a>
+        <p class="cta-row__note">
+          For full details on deposits, withdrawals, and how to fund your trading account,
+          <a href="#" class="link">Contact us</a>
+        </p>
+      </div>
+
+      <div class="payments">
+        <img src="assets/payment/usdt.svg" alt="USDT" />
+        <img src="assets/payment/visa.svg" alt="Visa" />
+        <img src="assets/payment/mastercard.svg" alt="Mastercard" />
+        <img src="assets/payment/skrill.svg" alt="Skrill" />
+        <img src="assets/payment/neteller.svg" alt="Neteller" />
+        <img src="assets/payment/applepay.svg" alt="Apple Pay" />
+        <img src="assets/payment/bitcoin.svg" alt="Bitcoin" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PRICING TIERS (3 cards, middle is featured) ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="pill">Choose your account</span>
+        <h2 class="section-head__title">Your style, Your account.</h2>
+        <p class="section-head__sub">
+          Three account tiers built for different traders. Start where you're comfortable.
+          Upgrade as you grow.
+        </p>
+      </div>
+      <div class="grid-3 grid-3--tiers">
+        <article class="tier">
+          <h3 class="tier__name">Standard</h3>
+          <p class="tier__desc">For new and casual traders starting out.</p>
+          <ul class="tier__features">
+            <li><img src="assets/icon/check.svg" alt="" class="icon" /> Standard market spreads</li>
+            <li><img src="assets/icon/check.svg" alt="" class="icon" /> Web & mobile platforms</li>
+            <li><img src="assets/icon/check.svg" alt="" class="icon" /> Email support</li>
+            <li><img src="assets/icon/check.svg" alt="" class="icon" /> Standard execution speeds</li>
+          </ul>
+          <a href="#" class="btn btn--outline btn--block">Choose Account</a>
+        </article>
+
+        <article class="tier tier--featured">
+          <span class="tier__badge">Most Popular</span>
+          <h3 class="tier__name">Premium</h3>
+          <p class="tier__desc">For active traders seeking better edge.</p>
+          <ul class="tier__features">
+            <li><img src="assets/icon/check-light.svg" alt="" class="icon" /> All Standard features</li>
+            <li><img src="assets/icon/check-light.svg" alt="" class="icon" /> Tighter spreads</li>
+            <li><img src="assets/icon/check-light.svg" alt="" class="icon" /> Priority support</li>
+            <li><img src="assets/icon/check-light.svg" alt="" class="icon" /> Faster execution</li>
+          </ul>
+          <a href="#" class="btn btn--primary btn--block">Choose Account</a>
+        </article>
+
+        <article class="tier">
+          <h3 class="tier__name">Ultra</h3>
+          <p class="tier__desc">For pros and institutional-style traders.</p>
+          <ul class="tier__features">
+            <li><img src="assets/icon/check.svg" alt="" class="icon" /> All Premium features</li>
+            <li><img src="assets/icon/check.svg" alt="" class="icon" /> Lowest spreads</li>
+            <li><img src="assets/icon/check.svg" alt="" class="icon" /> Dedicated manager</li>
+            <li><img src="assets/icon/check.svg" alt="" class="icon" /> API access</li>
+          </ul>
+          <a href="#" class="btn btn--outline btn--block">Choose Account</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 24/7 CUSTOMER SUPPORT (split: text + photo grid) ============ -->
+  <section class="section section--gray">
+    <div class="container">
+      <div class="split split--reverse">
+        <div class="split__text">
+          <span class="pill">Global trading platform</span>
+          <h2 class="section-head__title">24/7 Customer Support</h2>
+          <p class="split__body">
+            Trade with confidence, we have got you covered! Our dedicated customer support team is
+            just a click or call away, helping you achieve your financial goals and ensuring you
+            never miss any chance.
+          </p>
+          <a href="#" class="btn btn--primary">Open your account</a>
+        </div>
+        <div class="split__media support-grid" data-placeholder="true">
+          <img src="assets/images/support-1-placeholder.png" alt="" />
+          <img src="assets/images/support-2-placeholder.png" alt="" />
+          <img src="assets/images/support-3-placeholder.png" alt="" />
+          <img src="assets/images/support-4-placeholder.png" alt="" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ READY TO TRADE (3 steps, dark) ============ -->
+  <section class="section section--dark">
+    <div class="container">
+      <div class="section-head">
+        <span class="pill pill--on-dark">Live Market Data</span>
+        <h2 class="section-head__title">Ready to trade like you mean it?</h2>
+        <p class="section-head__sub">
+          Open your account today in 3 easy steps. No hidden fees. No complicated process.
+          Just the tools to trade and a team backing you every step.
+        </p>
+      </div>
+      <div class="grid-3">
+        <article class="step">
+          <span class="step__num">01</span>
+          <h3 class="step__title">Open your account</h3>
+          <p class="step__text">
+            Sign up in under five minutes. Verify your identity, pick your account type, and you're in.
+            No paperwork. No extra costs.
+          </p>
+        </article>
+        <article class="step">
+          <span class="step__num">02</span>
+          <h3 class="step__title">Fund Your Wallet</h3>
+          <p class="step__text">
+            Deposit using cards, bank transfer, e-wallets, or crypto. Most deposits reflect instantly
+            so you can start trading the same day.
+          </p>
+        </article>
+        <article class="step">
+          <span class="step__num">03</span>
+          <h3 class="step__title">Start Trading</h3>
+          <p class="step__text">
+            Pick your markets. Set your strategy. Place your first trade. Or follow a verified expert
+            system and let them run the strategy for you.
+          </p>
+        </article>
+      </div>
+      <div class="cta-row cta-row--center">
+        <a href="#" class="btn btn--primary">Open your account</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <img src="assets/logo/logo.svg" alt="Zeropay" />
+          <p class="footer__mission">
+            Zero Trade mission is to create the best trading experience for retail and institutional
+            clients alike, allowing traders to focus more on their trading. Built by traders for
+            traders ZeroTrade is dedicated to offering superior spreads, execution and service.
+          </p>
+        </div>
+        <div class="footer__regs">
+          <img src="assets/images/reg-sec.svg" alt="US Securities and Exchange Commission" />
+          <img src="assets/images/reg-financial.svg" alt="The Financial Commission" />
+        </div>
+      </div>
+
+      <div class="footer__legal">
+        <p>
+          ZeroTrade is a trading company that. Direct access to over 50 financial markets through one
+          account. Any information contained on this website is provided to you for informational
+          purposes only and should not be regarded as an offer or solicitation of an offer to buy or
+          sell any trading or related services that may be referenced here…
+        </p>
+        <p>
+          Zero Trade (LM) and zerotrading.com, Inc. are members of the Zero Trading Group of Companies…
+          © 2026, zerotrading.com. All Rights Reserved.
+        </p>
+      </div>
+
+      <div class="footer__bar">
+        <p>© 2026 Zero Technologies. All rights reserved.</p>
+        <ul class="footer__links">
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Disclaimer</a></li>
+          <li><a href="#">Terms</a></li>
+          <li><a href="#">Cookies</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
